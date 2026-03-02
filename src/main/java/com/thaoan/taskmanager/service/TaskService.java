@@ -1,5 +1,6 @@
 package com.thaoan.taskmanager.service;
 
+import com.thaoan.taskmanager.dto.TaskRequest;
 import com.thaoan.taskmanager.models.Task;
 import com.thaoan.taskmanager.repository.TaskRepository;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,14 @@ public class TaskService {
     }
 
     // Método de atualização que o Controller agora espera
-    public Optional<Task> atualizar(Long id, Task details) {
-        return repository.findById(id).map(task -> {
-            task.setTitle(details.getTitle());
-            task.setDescription(details.getDescription());
-            task.setCompleted(details.isCompleted());
-            return repository.save(task);
-        });
-    }
+public Optional<Task> atualizar(Long id, TaskRequest details) {
+    return repository.findById(id).map(task -> {
+        task.setTitle(details.title());
+        task.setDescription(details.description());
+        task.setCompleted(details.completed());
+        return repository.save(task);
+    });
+}
 
     // Método de exclusão que retorna booleano para o Controller decidir o status HTTP
     public boolean deletar(Long id) {
