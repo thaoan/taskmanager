@@ -2,6 +2,7 @@ package com.thaoan.taskmanager.controller;
 
 import com.thaoan.taskmanager.models.Task;
 import com.thaoan.taskmanager.repository.TaskRepository;
+import jakarta.validation.Valid; // Importe necessário para a validação
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,14 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task create(@RequestBody Task task) {
+    // Adicionamos o @Valid aqui para ativar as regras da model
+    public Task create(@Valid @RequestBody Task task) {
         return repository.save(task);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> update(@PathVariable Long id, @RequestBody Task taskDetails) {
+    // Adicionamos o @Valid aqui também para garantir que a atualização siga as regras
+    public ResponseEntity<Task> update(@PathVariable Long id, @Valid @RequestBody Task taskDetails) {
         return repository.findById(id).map(task -> {
             task.setTitle(taskDetails.getTitle());
             task.setDescription(taskDetails.getDescription());
