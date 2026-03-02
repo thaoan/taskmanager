@@ -4,9 +4,12 @@ import com.thaoan.taskmanager.dto.TaskRequest;
 import com.thaoan.taskmanager.models.Task;
 import com.thaoan.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -19,36 +22,32 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getAll() {
-        return service.listarTodas();
+    public ResponseEntity<Page<Task>> getAll(
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(service.listarTodas(pageable));
     }
 
     @GetMapping("/filter")
-    public List<Task> filterByStatus(@RequestParam boolean completed) {
-        return service.buscarPorStatus(completed);
+    public ResponseEntity<Page<Task>> filterByStatus(
+            @RequestParam boolean completed,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(service.buscarPorStatus(completed, pageable));
     }
 
     @PostMapping
-    public Task create(@Valid @RequestBody TaskRequest request) {
-        Task task = new Task();
-        task.setTitle(request.title());
-        task.setDescription(request.description());
-        task.setCompleted(request.completed());
-        return service.salvar(task);
+    public ResponseEntity<Task> create(@Valid @RequestBody TaskRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.salvar(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> update(@PathVariable Long id, @Valid @RequestBody TaskRequest request) {
-        return service.atualizar(id, request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Task updatedTask = service.atualizar(id, request);
+        return ResponseEntity.ok(updatedTask);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (service.deletar(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

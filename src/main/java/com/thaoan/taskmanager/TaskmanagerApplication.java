@@ -3,8 +3,10 @@ package com.thaoan.taskmanager;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing // Habilita o suporte a auditoria (createdAt, updatedAt)
 public class TaskmanagerApplication {
 
     public static void main(String[] args) {

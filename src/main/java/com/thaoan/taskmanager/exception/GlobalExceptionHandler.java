@@ -12,7 +12,18 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Trata erros de validação (ex: título vazio)
+    // 1. Trata erros de busca (ID não encontrado) -> RETORNA 404
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(), 
+                ex.getMessage(), 
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    // 2. Trata erros de validação (ex: título vazio) -> RETORNA 400
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         String errors = ex.getBindingResult().getFieldErrors()
@@ -23,10 +34,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // Trata qualquer outro erro genérico
+    // 3. Trata qualquer outro erro inesperado -> RETORNA 500
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericError(Exception ex) {
-        ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Erro interno no servidor", LocalDateTime.now());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(), 
+                "Erro interno no servidor: " + ex.getMessage(), 
+                LocalDateTime.now()
+        );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }
