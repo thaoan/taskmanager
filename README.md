@@ -53,6 +53,9 @@ A imagem cria o banco definido pelo `.env` e abre a porta padrão (`3306`).
 A aplicação rodará em `http://localhost:8080`.
 
 ---
+## 📖 Documentação da API
+Com a aplicação rodando, acesse o Swagger UI para testar os endpoints:
+http://localhost:8080/swagger-ui/index.html
 
 ## 📦 Endpoints disponíveis
 
