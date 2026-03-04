@@ -1,11 +1,13 @@
 package com.thaoan.taskmanager.service;
 
+import com.thaoan.taskmanager.dto.UserResponse; // Import do DTO
 import com.thaoan.taskmanager.models.User;
 import com.thaoan.taskmanager.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List; 
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -18,14 +20,20 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User salvar(User user) {
+    // Agora retorna UserResponse (sem senha)
+    public UserResponse salvar(User user) {
         // Criptografa a senha antes de salvar
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return repository.save(user);
+        User userSalvo = repository.save(user);
+        
+        // Converte a Entity para o DTO de resposta
+        return new UserResponse(userSalvo.getId(), userSalvo.getUsername(), userSalvo.getEmail());
     }
 
-    //metodo para listar todos os usuários (útil para testes e administração)
-    public List<User> listarTodos() {
-        return repository.findAll();
+    // Retorna uma lista de DTOs limpos
+    public List<UserResponse> listarTodos() {
+        return repository.findAll().stream()
+                .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getEmail()))
+                .collect(Collectors.toList());
     }
 }

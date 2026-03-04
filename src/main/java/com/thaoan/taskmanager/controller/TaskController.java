@@ -1,7 +1,7 @@
 package com.thaoan.taskmanager.controller;
 
 import com.thaoan.taskmanager.dto.TaskRequest;
-import com.thaoan.taskmanager.models.Task;
+import com.thaoan.taskmanager.dto.TaskResponse; // Import do novo DTO
 import com.thaoan.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -23,27 +23,27 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Task>> listar(
+    public ResponseEntity<Page<TaskResponse>> listar( // Mudou para TaskResponse
+            @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Boolean completed,
             @RequestParam(required = false) String title,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        // Agora o Sort.by("id") funcionará com o import acima
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         
-        return ResponseEntity.ok(service.listarComFiltros(categoryId, completed, title, pageable));
+        return ResponseEntity.ok(service.listarComFiltros(userId, categoryId, completed, title, pageable));
     }
 
     @PostMapping
-    public ResponseEntity<Task> create(@Valid @RequestBody TaskRequest request) {
+    public ResponseEntity<TaskResponse> create(@Valid @RequestBody TaskRequest request) { // Mudou para TaskResponse
         return ResponseEntity.status(HttpStatus.CREATED).body(service.salvar(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> update(@PathVariable Long id, @Valid @RequestBody TaskRequest request) {
-        Task updatedTask = service.atualizar(id, request);
+    public ResponseEntity<TaskResponse> update(@PathVariable Long id, @Valid @RequestBody TaskRequest request) { // Mudou para TaskResponse
+        TaskResponse updatedTask = service.atualizar(id, request);
         return ResponseEntity.ok(updatedTask);
     }
 
