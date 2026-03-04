@@ -4,8 +4,10 @@ import com.thaoan.taskmanager.dto.TaskRequest;
 import com.thaoan.taskmanager.exception.ResourceNotFoundException;
 import com.thaoan.taskmanager.models.Category;
 import com.thaoan.taskmanager.models.Task;
+import com.thaoan.taskmanager.models.User; // Import novo
 import com.thaoan.taskmanager.repository.CategoryRepository;
 import com.thaoan.taskmanager.repository.TaskRepository;
+import com.thaoan.taskmanager.repository.UserRepository; // Import novo
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,37 +17,38 @@ import org.springframework.transaction.annotation.Transactional;
 public class TaskService {
     private final TaskRepository repository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository; // Injeção nova
 
-    public TaskService(TaskRepository repository, CategoryRepository categoryRepository) {
+    // Construtor atualizado com as 3 dependências
+    public TaskService(TaskRepository repository, CategoryRepository categoryRepository, UserRepository userRepository) {
         this.repository = repository;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
     }
 
-public Page<Task> listarComFiltros(Long categoryId, Boolean completed, String title, Pageable pageable) {
-    // Filtro Triplo
-    if (categoryId != null && completed != null && title != null && !title.isBlank()) {
-        return repository.findByCategoryIdAndCompletedAndTitleContainingIgnoreCase(categoryId, completed, title, pageable);
-    }
-    
-    // Se não cair no triplo, tenta as combinações duplas ou simples
-    if (categoryId != null && completed != null) {
-        return repository.findByCategoryIdAndCompleted(categoryId, completed, pageable);
-    }
-    
-    if (title != null && !title.isBlank()) {
-        return repository.findByTitleContainingIgnoreCase(title, pageable);
-    }
+    public Page<Task> listarComFiltros(Long categoryId, Boolean completed, String title, Pageable pageable) {
+        if (categoryId != null && completed != null && title != null && !title.isBlank()) {
+            return repository.findByCategoryIdAndCompletedAndTitleContainingIgnoreCase(categoryId, completed, title, pageable);
+        }
+        
+        if (categoryId != null && completed != null) {
+            return repository.findByCategoryIdAndCompleted(categoryId, completed, pageable);
+        }
+        
+        if (title != null && !title.isBlank()) {
+            return repository.findByTitleContainingIgnoreCase(title, pageable);
+        }
 
-    if (categoryId != null) {
-        return repository.findByCategoryId(categoryId, pageable);
-    }
+        if (categoryId != null) {
+            return repository.findByCategoryId(categoryId, pageable);
+        }
 
-    if (completed != null) {
-        return repository.findByCompleted(completed, pageable);
-    }
+        if (completed != null) {
+            return repository.findByCompleted(completed, pageable);
+        }
 
-    return repository.findAll(pageable);
-}
+        return repository.findAll(pageable);
+    }
 
     @Transactional
     public Task salvar(TaskRequest request) {
@@ -76,10 +79,18 @@ public Page<Task> listarComFiltros(Long categoryId, Boolean completed, String ti
         task.setDescription(request.description());
         task.setCompleted(request.completed());
 
+        // Busca e associa a Categoria
         if (request.categoryId() != null) {
             Category category = categoryRepository.findById(request.categoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com ID: " + request.categoryId()));
             task.setCategory(category);
+        }
+
+        // Busca e associa o Usuário (Dono da tarefa)
+        if (request.userId() != null) {
+            User user = userRepository.findById(request.userId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + request.userId()));
+            task.setUser(user);
         }
     }
 }

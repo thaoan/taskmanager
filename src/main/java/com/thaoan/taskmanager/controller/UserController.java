@@ -1,7 +1,7 @@
 package com.thaoan.taskmanager.controller;
 
 import com.thaoan.taskmanager.models.User;
-import com.thaoan.taskmanager.repository.UserRepository;
+import com.thaoan.taskmanager.service.UserService; // Import do Service
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,19 +11,19 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserRepository repository;
-
-    public UserController(UserRepository repository) {
-        this.repository = repository;
+    private final UserService service; 
+    public UserController(UserService service) {
+        this.service = service;
     }
 
     @PostMapping
     public ResponseEntity<User> cadastrar(@RequestBody User user) {
-        return ResponseEntity.ok(repository.save(user));
+        
+        return ResponseEntity.ok(service.salvar(user));
     }
 
     @GetMapping
     public ResponseEntity<List<User>> listar() {
-        return ResponseEntity.ok(repository.findAll());
+        return ResponseEntity.ok(service.listarTodos());
     }
 }

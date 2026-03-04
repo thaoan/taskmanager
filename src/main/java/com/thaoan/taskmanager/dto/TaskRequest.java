@@ -14,6 +14,9 @@ public record TaskRequest(
 
     boolean completed,
 
-    @NotNull(message = "O ID da categoria é obrigatório") // Adicionado para garantir o vínculo
-    Long categoryId
+    @NotNull(message = "O ID da categoria é obrigatório")
+    Long categoryId,
+
+    @NotNull(message = "O ID do usuário é obrigatório") 
+    Long userId
 ) {}
