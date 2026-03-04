@@ -14,6 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // O Spring Security usa este método para carregar o usuário durante a validação do Token
     UserDetails findByEmail(String email);
 
-    // Mantemos este para validações extras se precisar (como no cadastro)
+    // Outras validações extras se precisar (como no cadastro)
     boolean existsByEmail(String email);
 }

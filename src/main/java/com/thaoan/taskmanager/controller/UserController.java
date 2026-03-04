@@ -22,32 +22,32 @@ public class UserController {
     public UserController(UserService service) {
         this.service = service;
     }
-
+    // O método de criação de usuário é público, pois é necessário para o registro. Os outros métodos são protegidos por autenticação.
     @PostMapping
     @Operation(summary = "Register a new user", description = "Creates a new user account and returns public data.")
     public ResponseEntity<UserResponse> create(@Valid @RequestBody UserRequest request) {
-        // Corrigido de 'salvar' para 'save'
+      
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(request));
     }
-
+    // Metodo de listagem de usuários 
     @GetMapping
     @Operation(summary = "List all users", description = "Returns a list of all registered users without sensitive information.")
     public ResponseEntity<List<UserResponse>> list() {
-        // Corrigido de 'listarTodos' para 'findAll'
+        
         return ResponseEntity.ok(service.findAll());
     }
-
+// metodo update e delete, ambos protegidos por autenticação, para garantir que apenas usuários autorizados possam modificar ou remover contas.
     @PutMapping("/{id}")
     @Operation(summary = "Update a user", description = "Updates user details like username or password based on the ID.")
     public ResponseEntity<UserResponse> update(@PathVariable Long id, @Valid @RequestBody UserRequest request) {
-        // Corrigido de 'atualizar' para 'update'
+        
         return ResponseEntity.ok(service.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a user", description = "Permanently removes a user from the system.")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        // Corrigido de 'deletar' para 'delete'
+        
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
