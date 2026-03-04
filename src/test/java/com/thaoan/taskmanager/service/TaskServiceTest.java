@@ -15,12 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+// Certifique-se de ter as dependências do Mockito e JUnit 5 no seu pom.xml para que este teste funcione corretamente.
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
 
@@ -54,22 +55,29 @@ class TaskServiceTest {
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoria));
         when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
         
-        // Mock do save: Quando salvar, ele retorna uma Task completa com os objetos dentro
         when(repository.save(any(Task.class))).thenAnswer(invocation -> {
             Task t = invocation.getArgument(0);
-            t.setId(10L); // Simula o ID gerado pelo banco
+            t.setId(10L);
+            t.setCreatedAt(LocalDateTime.now()); // Simula a data de criação
             return t;
         });
 
         // Act
-        // O RETORNO AGORA É TaskResponse!
         TaskResponse resultado = service.salvar(request);
 
         // Assert
         assertNotNull(resultado);
         assertEquals("Teste", resultado.title());
-        assertEquals(1L, resultado.category().id()); // Verifica o ID no DTO de categoria
-        assertEquals(1L, resultado.user().id());     // Verifica o ID no DTO de usuário
+
+        // Verificamos a categoria associada
+        assertNotNull(resultado.category());
+        assertEquals(1L, resultado.category().id()); 
+        
+        // Verificamos o nome do dono da tarefa
+        assertEquals("teste", resultado.ownerName()); 
+        
+        // Verificamos a data de criação
+        assertNotNull(resultado.createdAt());
         
         verify(repository).save(any(Task.class));
     }

@@ -1,6 +1,7 @@
 package com.thaoan.taskmanager.service;
 
-import com.thaoan.taskmanager.dto.UserResponse; // Import do DTO
+import com.thaoan.taskmanager.dto.UserRequest;
+import com.thaoan.taskmanager.dto.UserResponse;
 import com.thaoan.taskmanager.models.User;
 import com.thaoan.taskmanager.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,20 +21,54 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Agora retorna UserResponse (sem senha)
-    public UserResponse salvar(User user) {
-        // Criptografa a senha antes de salvar
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User userSalvo = repository.save(user);
+    public UserResponse save(UserRequest request) {
+        User user = new User();
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+
+        User savedUser = repository.save(user);
         
-        // Converte a Entity para o DTO de resposta
-        return new UserResponse(userSalvo.getId(), userSalvo.getUsername(), userSalvo.getEmail());
+        return mapToResponse(savedUser);
     }
 
-    // Retorna uma lista de DTOs limpos
-    public List<UserResponse> listarTodos() {
+    public List<UserResponse> findAll() {
         return repository.findAll().stream()
-                .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getEmail()))
+                .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    // NOVO: Método para atualizar usuário
+    public UserResponse update(Long id, UserRequest request) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        // Apenas atualiza a senha se ela não estiver vazia
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+        }
+
+        User updatedUser = repository.save(user);
+        return mapToResponse(updatedUser);
+    }
+
+    // NOVO: Método para deletar usuário
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("User not found with id: " + id);
+        }
+        repository.deleteById(id);
+    }
+
+    // Método auxiliar para evitar repetição de código (DRY)
+    private UserResponse mapToResponse(User user) {
+        return new UserResponse(
+            user.getId(), 
+            user.getUsername(), 
+            user.getEmail(),
+            "USER" 
+        );
     }
 }

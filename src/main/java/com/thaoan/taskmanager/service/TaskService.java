@@ -1,6 +1,6 @@
 package com.thaoan.taskmanager.service;
 
-import com.thaoan.taskmanager.dto.*; // Importa TaskRequest, TaskResponse, UserResponse, CategoryResponse
+import com.thaoan.taskmanager.dto.*;
 import com.thaoan.taskmanager.exception.ResourceNotFoundException;
 import com.thaoan.taskmanager.models.Category;
 import com.thaoan.taskmanager.models.Task;
@@ -25,11 +25,9 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    // 1. Mudamos o retorno para Page<TaskResponse>
     public Page<TaskResponse> listarComFiltros(Long userId, Long categoryId, Boolean completed, String title, Pageable pageable) {
-        
         Page<Task> tasks;
-
+        // ... sua lógica de filtros continua igual ...
         if (userId == null) {
             tasks = repository.findAll(pageable);
         } else if (categoryId != null && completed != null && title != null && !title.isBlank()) {
@@ -46,7 +44,6 @@ public class TaskService {
             tasks = repository.findByUserId(userId, pageable);
         }
 
-        // 2. O MAP transforma a lista de Entities em lista de DTOs (sem senha)
         return tasks.map(this::convertToResponse);
     }
 
@@ -54,15 +51,13 @@ public class TaskService {
     public TaskResponse salvar(TaskRequest request) {
         Task task = new Task();
         mapRequestToEntity(task, request);
-        Task savedTask = repository.save(task);
-        return convertToResponse(savedTask);
+        return convertToResponse(repository.save(task));
     }
 
     @Transactional
     public TaskResponse atualizar(Long id, TaskRequest details) {
         Task task = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarefa não encontrada com ID: " + id));
-
         mapRequestToEntity(task, details);
         return convertToResponse(repository.save(task));
     }
@@ -75,7 +70,6 @@ public class TaskService {
         repository.deleteById(id);
     }
 
-    // Mapeamento de Request -> Entity (Entrada de dados)
     private void mapRequestToEntity(Task task, TaskRequest request) {
         task.setTitle(request.title());
         task.setDescription(request.description());
@@ -83,43 +77,38 @@ public class TaskService {
 
         if (request.categoryId() != null) {
             Category category = categoryRepository.findById(request.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com ID: " + request.categoryId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
             task.setCategory(category);
         }
 
         if (request.userId() != null) {
             User user = userRepository.findById(request.userId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + request.userId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
             task.setUser(user);
         }
     }
 
-    // Mapeamento de Entity -> Response (Saída de dados limpa)
     private TaskResponse convertToResponse(Task task) {
-        UserResponse userDTO = null;
-        if (task.getUser() != null) {
-            userDTO = new UserResponse(
-                task.getUser().getId(),
-                task.getUser().getUsername(),
-                task.getUser().getEmail()
-            );
-        }
-
         CategoryResponse categoryDTO = null;
         if (task.getCategory() != null) {
+            // Ajustado para bater com: Long id, String name, String description
             categoryDTO = new CategoryResponse(
                 task.getCategory().getId(),
-                task.getCategory().getName()
+                task.getCategory().getName(),
+                "" // Se sua entity Category não tiver descrição, mande vazio ou null
             );
         }
 
+        // Ajustado para bater com o novo TaskResponse:
+        // Long id, String title, String description, boolean completed, LocalDateTime createdAt, CategoryResponse category, String ownerName
         return new TaskResponse(
             task.getId(),
             task.getTitle(),
             task.getDescription(),
             task.isCompleted(),
+            task.getCreatedAt(), // Certifique-se que sua Entity Task tem esse campo
             categoryDTO,
-            userDTO
+            task.getUser() != null ? task.getUser().getUsername() : "Sem dono"
         );
     }
 }

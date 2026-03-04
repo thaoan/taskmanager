@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/taskmanager_db}
+    url: ${DB_URL:jdbc:mysql://db:3306/taskmanager_db?allowPublicKeyRetrieval=true&useSSL=false}
     username: ${DB_USER:root}
-    password: ${DB_PASSWORD:root} 
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -10,10 +10,15 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect 
+        dialect: org.hibernate.dialect.MySQL8Dialect
   main:
     allow-bean-definition-overriding: true
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:minha-chave-secreta-super-dificil-123}

@@ -1,15 +1,17 @@
 package com.thaoan.taskmanager.dto;
 
-import com.thaoan.taskmanager.models.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record UserResponse(
+    @Schema(example = "1")
     Long id,
+
+    @Schema(example = "thaoan")
     String username,
-    String email
-) {
-    // Método estático para converter a Entity User para o DTO UserResponse 
-    public static UserResponse fromEntity(User user) {
-        if (user == null) return null;
-        return new UserResponse(user.getId(), user.getUsername(), user.getEmail());
-    }
-}
+
+    @Schema(example = "thaoan@teste.com")
+    String email,
+
+    @Schema(example = "USER", description = "Papel do usuário no sistema (USER ou ADMIN)")
+    String role
+) {}
