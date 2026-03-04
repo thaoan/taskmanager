@@ -1,111 +1,155 @@
 # TaskManager API
 
-A robust and scalable RESTful API for task management built with Spring Boot 3.4.3 and Java 21. This project follows industry best practices, including DTO patterns, automated auditing, and comprehensive error handling.
+RESTful API for task management built with Spring Boot 3.4.3 and Java 21. Features JWT authentication, complete task and category management, with Swagger documentation.
 
 ## 🛠 Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Language | Java 21 (LTS) |
+| Component | Technology |
+|-----------|------------|
+| Language | Java 21 |
 | Framework | Spring Boot 3.4.3 |
-| Persistence | Spring Data JPA (Hibernate) |
-| Database | MySQL 8.0 (Dockerized) |
-| Security | Spring Security (Basic Auth) |
-| Validation | Jakarta Bean Validation |
-| Documentation | Swagger / OpenAPI 3 |
-| Build Tool | Maven |
-| Testing | JUnit 5 & Mockito |
+| Authentication | Spring Security + JWT |
+| Database | MySQL 8.0 (Docker) |
+| Documentation | Swagger/OpenAPI 3 |
+| Build | Maven |
 
-## 🌟 Key Features
+## ✨ Features
 
-- **Java 21 Records**: Used for immutable and clean Data Transfer Objects (DTOs)
-- **Pagination & Sorting**: Efficient data fetching using Pageable to handle large datasets
-- **Automated Auditing**: JPA Auditing tracks createdAt and updatedAt timestamps automatically
-- **Global Exception Handling**: Centralized error management returning standardized JSON responses (404, 400, 500)
-- **Environment Security**: Integration with dotenv-java to keep sensitive credentials out of the source code
-- **Unit Testing**: Business logic validated with Mockito to ensure reliability
+- **JWT Authentication** - Secure token-based user login
+- **User Management** - Registration, profile updates, listing
+- **Task Management** - Full CRUD with filtering by user, category, status, and title
+- **Categories** - Organize tasks with custom categories
+- **Pagination & Sorting** - Efficient data retrieval
+- **JPA Auditing** - Automatic timestamp tracking (createdAt, updatedAt)
+- **Global Exception Handling** - Standardized error responses
+- **Swagger UI** - Interactive API documentation
+- **Environment Security** - Credentials managed via .env file
 
-## 📁 Project Structure
-
-```
-src/main/java/com/thaoan/taskmanager/
-  ├─ config/         # Security and Audit configurations
-  ├─ controller/     # REST Endpoints
-  ├─ dto/            # Request/Response Records (Data Transfer Objects)
-  ├─ exception/      # Custom exceptions and Global Handler
-  ├─ models/         # JPA Entities
-  ├─ repository/     # Spring Data JPA interfaces
-  └─ service/        # Business logic and transaction management
-
-src/test/java/       # Unit and Integration tests
-```
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-
 - Docker & Docker Compose
 - JDK 21
-- Maven (or use the provided `./mvnw` wrapper)
+- Maven
 
-### Environment Setup
+### Setup
 
-Create a `.env` file in the root directory:
-
-```
+1. Create `.env` file:
+```env
 DB_URL=jdbc:mysql://localhost:3306/taskmanager_db
 DB_USER=root
-DB_PASSWORD=your_secure_password
+DB_PASSWORD=your_password
+JWT_SECRET=your_jwt_secret_key_minimum_32_characters
 ```
 
-### Spin up the Database
-
+2. Start database:
 ```bash
 docker-compose up -d
 ```
 
-### Run the Application
-
+3. Run application:
 ```bash
 ./mvnw spring-boot:run
 ```
 
-The API will be available at `http://localhost:8080`.
+API available at `http://localhost:8080`
 
-## 🌐 API Documentation
+## 📚 API Endpoints
 
-Once the app is running, explore and test the endpoints via Swagger UI:
+### Authentication
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/auth/login` | User login | No |
 
-👉 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+### Users
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/users` | Register new user | No |
+| GET | `/api/users` | List users | Yes |
+| PUT | `/api/users/{id}` | Update user | Yes |
+| DELETE | `/api/users/{id}` | Delete user | Yes |
 
-### Endpoints Overview
+### Tasks
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/tasks` | List tasks (with filters) | Yes |
+| POST | `/api/tasks` | Create task | Yes |
+| PUT | `/api/tasks/{id}` | Update task | Yes |
+| DELETE | `/api/tasks/{id}` | Delete task | Yes |
 
-| Method | Endpoint | Description | Query Params |
-|--------|----------|-------------|--------------|
-| GET | `/api/tasks` | List all tasks (Paginated) | page, size, sort |
-| GET | `/api/tasks/filter` | Filter by status (Paginated) | completed, page, size |
-| POST | `/api/tasks` | Create a new task | - |
-| PUT | `/api/tasks/{id}` | Update existing task | - |
-| DELETE | `/api/tasks/{id}` | Remove task (Safe delete) | - |
+**Task Filters:** userId, categoryId, completed, title, page, size
+
+### Categories
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/categories` | List categories | Yes |
+| POST | `/api/categories` | Create category | Yes |
+| PUT | `/api/categories/{id}` | Update category | Yes |
+| DELETE | `/api/categories/{id}` | Delete category | Yes |
+
+## 🔐 Authentication
+
+1. Login via `POST /api/auth/login` to get JWT token
+2. Add token to requests: `Authorization: Bearer <token>`
+3. All endpoints require authentication except user registration and login
+
+**Using Swagger UI:**
+- Click "Authorize" button
+- Enter: `Bearer YOUR_TOKEN`
+
+## 📂 Project Structure
+
+```
+src/main/java/com/thaoan/taskmanager/
+├── controller/     # REST endpoints
+├── service/        # Business logic
+├── repository/     # Data access (JPA)
+├── models/         # JPA entities
+├── dto/            # Data transfer objects
+├── security/       # JWT & security config
+├── exception/      # Exception handling
+└── config/         # Application config
+
+src/test/java/     # Unit & integration tests
+```
 
 ## 🧪 Testing
 
-Run the automated test suite (Unit + Integration tests):
-
 ```bash
+# Run all tests
 ./mvnw test
+
+# Run specific test
+./mvnw test -Dtest=TaskServiceTest
+
+# With coverage
+./mvnw test jacoco:report
 ```
 
-## 🤝 Contributing
+## 📦 Production Build
 
-Contributions are welcome! Feel free to open issues or submit pull requests.
+```bash
+./mvnw clean package -DskipTests
+java -jar target/taskmanager-0.0.1-SNAPSHOT.jar
+```
 
-### Upcoming Roadmap
+## 📖 Documentation
 
-- [ ] Implement JWT (JSON Web Token) Authentication
-- [ ] Add Redis caching for frequently accessed tasks
-- [ ] Develop a React/Next.js Frontend
+**Swagger UI:** http://localhost:8080/swagger-ui/index.html
+**API Docs:** http://localhost:8080/v3/api-docs
+**Detailed Technical Specs:** [DOCUMENTATION.md](./DOCUMENTATION.md)
+## 👨‍💻 Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/your-feature`
+3. Commit: `git commit -m 'Add feature'`
+4. Push: `git push origin feature/your-feature`
+5. Open Pull Request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
 
 ---
 
-Developed with  by Thaoan Zamboni 👨‍💻
+**Developed by Thaoan Zamboni** 👨‍💻
