@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tasks")
 @Data 
-@EntityListeners(AuditingEntityListener.class) // <--- OBRIGATÓRIO para o Spring "ouvir" as datas
+@EntityListeners(AuditingEntityListener.class) 
 public class Task {
 
     @Id
@@ -29,11 +29,21 @@ public class Task {
 
     private boolean completed = false;
 
-    @CreatedDate // Substitui o seu @PrePersist e o LocalDateTime.now() manual
+    // Relacionamento com Categoria
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    // Relacionamento com Usuário (Dono da Tarefa)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate // NOVO: Registra automaticamente quando você editar a tarefa
+    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }

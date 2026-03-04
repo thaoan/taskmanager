@@ -1,4 +1,4 @@
-package com.thaoan.taskmanager;
+package com.thaoan.taskmanager.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,20 +1,19 @@
 spring:
   datasource:
-    # Se a variável sumir, ele tenta o localhost por padrão
     url: ${DB_URL:jdbc:mysql://localhost:3306/taskmanager_db}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root} 
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-    # O Dialect não é mais obrigatório no Spring Boot 3+, pode remover se quiser
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect 
   main:
     allow-bean-definition-overriding: true
 
 springdoc:
-  api-docs:
-    path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html

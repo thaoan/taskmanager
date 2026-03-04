@@ -5,8 +5,9 @@ import com.thaoan.taskmanager.models.Task;
 import com.thaoan.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort; 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,16 +23,17 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Task>> getAll(
-            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
-        return ResponseEntity.ok(service.listarTodas(pageable));
-    }
-
-    @GetMapping("/filter")
-    public ResponseEntity<Page<Task>> filterByStatus(
-            @RequestParam boolean completed,
-            @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(service.buscarPorStatus(completed, pageable));
+    public ResponseEntity<Page<Task>> listar(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Boolean completed,
+            @RequestParam(required = false) String title,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        // Agora o Sort.by("id") funcionará com o import acima
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        
+        return ResponseEntity.ok(service.listarComFiltros(categoryId, completed, title, pageable));
     }
 
     @PostMapping

@@ -1,100 +1,111 @@
-# 🚀 TaskManager API
+# TaskManager API
 
-Aplicação RESTful de gerenciamento de tarefas construída com **Spring Boot 3**. Este projeto serve como exemplo de arquitetura básica, uso de Spring Data JPA, segurança e orquestração via Docker.
+A robust and scalable RESTful API for task management built with Spring Boot 3.4.3 and Java 21. This project follows industry best practices, including DTO patterns, automated auditing, and comprehensive error handling.
 
----
+## 🛠 Tech Stack
 
-## 🛠 Tecnologias
+| Layer | Technology |
+|-------|------------|
+| Language | Java 21 (LTS) |
+| Framework | Spring Boot 3.4.3 |
+| Persistence | Spring Data JPA (Hibernate) |
+| Database | MySQL 8.0 (Dockerized) |
+| Security | Spring Security (Basic Auth) |
+| Validation | Jakarta Bean Validation |
+| Documentation | Swagger / OpenAPI 3 |
+| Build Tool | Maven |
+| Testing | JUnit 5 & Mockito |
 
-- Java 17
-- Spring Boot 3
-- Spring Data JPA (Hibernate)
-- MySQL 8.0 (containerizado via Docker)
-- Spring Security (configuração mínima)
-- Maven (build e dependências)
-- Lombok (redução de boilerplate)
+## 🌟 Key Features
 
----
+- **Java 21 Records**: Used for immutable and clean Data Transfer Objects (DTOs)
+- **Pagination & Sorting**: Efficient data fetching using Pageable to handle large datasets
+- **Automated Auditing**: JPA Auditing tracks createdAt and updatedAt timestamps automatically
+- **Global Exception Handling**: Centralized error management returning standardized JSON responses (404, 400, 500)
+- **Environment Security**: Integration with dotenv-java to keep sensitive credentials out of the source code
+- **Unit Testing**: Business logic validated with Mockito to ensure reliability
 
-## 🚀 Iniciando o projeto
+## 📁 Project Structure
 
-### Pré-requisitos
+```
+src/main/java/com/thaoan/taskmanager/
+  ├─ config/         # Security and Audit configurations
+  ├─ controller/     # REST Endpoints
+  ├─ dto/            # Request/Response Records (Data Transfer Objects)
+  ├─ exception/      # Custom exceptions and Global Handler
+  ├─ models/         # JPA Entities
+  ├─ repository/     # Spring Data JPA interfaces
+  └─ service/        # Business logic and transaction management
 
-- Docker & Docker Compose
-- JDK 17
-- Maven (ou use o wrapper `./mvnw`)
-
-### 1. Configurar variáveis de ambiente
-
-Crie um arquivo `.env` na raiz com as configurações de banco:
-
-```env
-DB_USER=root
-DB_PASSWORD=senha_forte_aqui
-DB_NAME=taskmanager_db
+src/test/java/       # Unit and Integration tests
 ```
 
-> **ATENÇÃO:** `.env` está listado em `.gitignore`. Não compartilhe credenciais sensíveis.
+## 🚀 Getting Started
 
-### 2. Subir banco de dados MySQL
+### Prerequisites
+
+- Docker & Docker Compose
+- JDK 21
+- Maven (or use the provided `./mvnw` wrapper)
+
+### Environment Setup
+
+Create a `.env` file in the root directory:
+
+```
+DB_URL=jdbc:mysql://localhost:3306/taskmanager_db
+DB_USER=root
+DB_PASSWORD=your_secure_password
+```
+
+### Spin up the Database
 
 ```bash
 docker-compose up -d
 ```
 
-A imagem cria o banco definido pelo `.env` e abre a porta padrão (`3306`).
-
-### 3. Executar a aplicação
+### Run the Application
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-A aplicação rodará em `http://localhost:8080`.
+The API will be available at `http://localhost:8080`.
 
----
-## 📖 Documentação da API
-Com a aplicação rodando, acesse o Swagger UI para testar os endpoints:
-http://localhost:8080/swagger-ui/index.html
+## 🌐 API Documentation
 
-## 📦 Endpoints disponíveis
+Once the app is running, explore and test the endpoints via Swagger UI:
 
-| Método | URI                    | Descrição                     |
-|--------|------------------------|-------------------------------|
-| GET    | `/api/tasks`           | Listar todas as tarefas       |
-| POST   | `/api/tasks`           | Criar nova tarefa             |
-| PUT    | `/api/tasks/{id}`      | Atualizar tarefa por ID       |
-| DELETE | `/api/tasks/{id}`      | Remover tarefa por ID         |
+👉 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-Teste com Postman, Insomnia ou curl.
+### Endpoints Overview
 
----
+| Method | Endpoint | Description | Query Params |
+|--------|----------|-------------|--------------|
+| GET | `/api/tasks` | List all tasks (Paginated) | page, size, sort |
+| GET | `/api/tasks/filter` | Filter by status (Paginated) | completed, page, size |
+| POST | `/api/tasks` | Create a new task | - |
+| PUT | `/api/tasks/{id}` | Update existing task | - |
+| DELETE | `/api/tasks/{id}` | Remove task (Safe delete) | - |
 
-## 🧪 Testes
+## 🧪 Testing
 
-O projeto inclui testes básicos de integração/união no pacote `com.thaoan.taskmanager`.
-Execute:
+Run the automated test suite (Unit + Integration tests):
 
 ```bash
 ./mvnw test
 ```
 
----
+## 🤝 Contributing
 
-## 📁 Estrutura de pastas
+Contributions are welcome! Feel free to open issues or submit pull requests.
 
-```
-src/main/java/com/thaoan/taskmanager/  (código-fonte)
-src/main/resources/                   (configurações e templates)
-src/test/java/...                     (testes)
-```
+### Upcoming Roadmap
 
----
-
-## 🤝 Contribuições
-
-Sinta-se à vontade para enviar pull requests ou abrir issues.
+- [ ] Implement JWT (JSON Web Token) Authentication
+- [ ] Add Redis caching for frequently accessed tasks
+- [ ] Develop a React/Next.js Frontend
 
 ---
 
-Desenvolvido por Thaoan Zamboni 👨‍💻
+Developed with  by Thaoan Zamboni 👨‍💻
